@@ -1,3 +1,7 @@
 timestamp,message,posted
-2024-01-04,"Testing our new automated posting system! #automation",false
-2024-01-04,"Excited to share more automated content soon! 🚀",false
+2024-01-04,Testing our new automated posting system! #automation,True
+2024-01-04,Excited to share more automated content soon! 🚀,True
+2024-01-04,"Testing our automated posting system! #automation",true
+2024-01-04,"Excited to share more automated content soon! 🚀",true
+2024-01-04,"Checking out GitHub Actions automation! 🤖",false
+2024-01-04,"Building cool things with IFTTT and Python 🐍",false
