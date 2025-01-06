@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tweet Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tweet Manager</h1>
+        <form id="tweetForm">
+            <div class="form-group">
+                <label for="tweetContent">Tweet Content:</label>
+                <textarea id="tweetContent" maxlength="280" required></textarea>
+                <div id="charCount">280 characters remaining</div>
+            </div>
+            <div class="form-group">
+                <label for="scheduleDate">Schedule Date:</label>
+                <input type="date" id="scheduleDate" required>
+            </div>
+            <div class="form-group">
+                <label for="scheduleTime">Schedule Time:</label>
+                <div class="time-input-container">
+                    <select id="scheduleHour" class="time-select">
+                        <!-- Will be filled by JavaScript -->
+                    </select>
+                    <span class="time-separator">:</span>
+                    <select id="scheduleMinute" class="time-select">
+                        <!-- Will be filled by JavaScript -->
+                    </select>
+                    <select id="scheduleAmPm" class="time-select">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <div class="time-helper">Times are in Eastern Time (ET)</div>
+            </div>
+            <button type="submit">Schedule Tweet</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
