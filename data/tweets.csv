@@ -1,4 +1,4 @@
 id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data
 M001,2024-01-04,Our first planned tweet,True,manual,2024-01-04 15:00:00,1,manual,
 Mcdeae361,2025-01-04 17:20:29,Quick test of our manual system! 🚀,True,manual,2025-01-04 17:20:29,1,manual,
-Mc359eab,2025-01-05 22:04:23,Testing our manual entry system!,False,manual,2025-01-05 22:00:00,1,manual,
+Mc359eab,2025-01-05 22:04:23,Testing our manual entry system!,True,manual,2025-01-05 22:00:00,1,manual,
