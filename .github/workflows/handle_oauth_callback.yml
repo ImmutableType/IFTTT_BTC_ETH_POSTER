@@ -4,62 +4,27 @@ on:
   repository_dispatch:
     types: [oauth-callback]
 
-permissions:
-  contents: write
-  actions: write
-
 jobs:
   exchange-code:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Debug Event
+    - uses: actions/checkout@v3
+    
+    - name: Exchange Code
       run: |
-        echo "Event type: ${{ github.event.event_type }}"
-        echo "Payload received with code length: ${#GITHUB_CODE}"
-      env:
-        GITHUB_CODE: ${{ github.event.client_payload.code }}
-
-    - name: Exchange Code for Token
-      id: exchange
-      env:
-        CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}
-      run: |
-        echo "Starting token exchange..."
-        token_response=$(curl -v -X POST \
+        response=$(curl -s -X POST \
           -H "Accept: application/json" \
           -H "Content-Type: application/json" \
           https://github.com/login/oauth/access_token \
-          -d "{\"client_id\":\"$CLIENT_ID\",\"client_secret\":\"$CLIENT_SECRET\",\"code\":\"${{ github.event.client_payload.code }}\"}")
+          -d "{\"client_id\":\"${{ secrets.OAUTH_CLIENT_ID }}\",\"client_secret\":\"${{ secrets.OAUTH_CLIENT_SECRET }}\",\"code\":\"${{ github.event.client_payload.code }}\"}")
         
-        echo "Response received:"
-        echo "$token_response" | jq '.'
+        echo "$response" > token.json
         
-        echo "response=$token_response" >> $GITHUB_OUTPUT
-
-    - name: Process Response
-      if: steps.exchange.outputs.response
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          console.log('Processing OAuth response');
-          const response = JSON.parse(process.env.RESPONSE);
-          if (response.access_token) {
-            console.log('Token received, creating dispatch event');
-            await github.rest.repos.createDispatchEvent({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              event_type: 'oauth-token-ready',
-              client_payload: {
-                token: response.access_token,
-                state: context.payload.client_payload.state
-              }
-            });
-            console.log('Dispatch event created');
-          } else {
-            console.log('No access token in response');
-          }
-      env:
-        RESPONSE: ${{ steps.exchange.outputs.response }}
+    - name: Commit Token
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git add token.json
+        git commit -m "Add OAuth token"
+        git push
