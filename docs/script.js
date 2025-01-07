@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scheduleAmPm = document.getElementById('scheduleAmPm');
 
     const githubAuth = {
-        client_id: 'YOUR_CLIENT_ID_HERE', // Replace with your actual client ID
+        client_id: 'Ov23litVfJxg9kyhCYOs', // Replace with your actual client ID
         scope: 'repo'
     };
 
