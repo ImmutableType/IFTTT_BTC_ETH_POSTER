@@ -11,30 +11,18 @@
         <h1>Tweet Manager</h1>
         <form id="tweetForm">
             <div class="form-group">
-                <label for="tweetContent">Tweet Content:</label>
+                <label for="tweetContent">Tweet:</label>
                 <textarea id="tweetContent" maxlength="280" required></textarea>
                 <div id="charCount">280 characters remaining</div>
             </div>
             <div class="form-group">
-                <label for="scheduleDate">Schedule Date:</label>
+                <label for="scheduleDate">Date:</label>
                 <input type="date" id="scheduleDate" required>
             </div>
             <div class="form-group">
-                <label for="scheduleTime">Schedule Time:</label>
-                <div class="time-input-container">
-                    <select id="scheduleHour" class="time-select">
-                        <!-- Will be filled by JavaScript -->
-                    </select>
-                    <span class="time-separator">:</span>
-                    <select id="scheduleMinute" class="time-select">
-                        <!-- Will be filled by JavaScript -->
-                    </select>
-                    <select id="scheduleAmPm" class="time-select">
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                    </select>
-                </div>
-                <div class="time-helper">Times are in Eastern Time (ET)</div>
+                <label>Time:</label>
+                <input type="time" id="scheduleTime" required>
+                <div class="time-helper">Eastern Time (ET)</div>
             </div>
             <button type="submit">Schedule Tweet</button>
         </form>
