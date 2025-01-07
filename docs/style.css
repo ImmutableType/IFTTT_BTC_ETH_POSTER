@@ -111,3 +111,26 @@ button:hover {
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+
+.time-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    min-width: 70px;
+}
+
+#scheduleHour, #scheduleMinute {
+    width: 80px;
+}
+
+#scheduleAmPm {
+    width: 70px;
+}
