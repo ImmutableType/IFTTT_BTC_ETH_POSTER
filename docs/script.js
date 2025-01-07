@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('/.netlify/functions/submit-tweet', {
+            const response = await fetch('../../api/submit-tweet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
