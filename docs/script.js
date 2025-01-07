@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scheduleAmPm = document.getElementById('scheduleAmPm');
 
     const githubAuth = {
-        client_id: 'Ov23litVfJxg9kyhCYOs', // Replace with your actual client ID
+        client_id: 'YOUR_CLIENT_ID_HERE', // Replace with your actual client ID
         scope: 'repo'
     };
 
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     if (code) {
-        // Exchange code for token via GitHub Actions proxy
         handleAuthCallback(code);
         return;
     }
@@ -75,25 +74,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleAuthCallback(code) {
         try {
-            const response = await fetch('https://github.com/login/oauth/access_token', {
+            // Use repository dispatch to securely exchange the code
+            const response = await fetch('https://api.github.com/repos/ImmutableType/twitter-poster/dispatches', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    client_id: githubAuth.client_id,
-                    code: code
+                    event_type: 'oauth-callback',
+                    client_payload: {
+                        code: code,
+                        callback_url: window.location.href,
+                        state: localStorage.getItem('oauth_state')
+                    }
                 })
             });
 
             if (response.ok) {
-                const data = await response.json();
-                if (data.access_token) {
-                    localStorage.setItem('github_token', data.access_token);
-                    // Remove code from URL
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
+                // Listen for response via repository dispatch
+                // Token will be stored in localStorage when received
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showMessage('Authentication successful', 'success');
+                location.reload();
+            } else {
+                console.error('Auth response:', await response.text());
+                showMessage('Authentication failed', 'error');
             }
         } catch (error) {
             console.error('Auth error:', error);
@@ -105,9 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const token = localStorage.getItem('github_token');
-        if (!token) {
-            window.location.href = `https://github.com/login/oauth/authorize?client_id=${githubAuth.client_id}&scope=${githubAuth.scope}`;
+        // Generate and store state for OAuth flow
+        const state = crypto.randomUUID();
+        localStorage.setItem('oauth_state', state);
+
+        // Check auth and redirect if needed
+        if (!localStorage.getItem('github_token')) {
+            window.location.href = `https://github.com/login/oauth/authorize?client_id=${githubAuth.client_id}&scope=${githubAuth.scope}&state=${state}`;
             return;
         }
 
@@ -143,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('github_token')}`
                 },
                 body: JSON.stringify({
                     event_type: 'tweet-submission',
@@ -164,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If unauthorized, clear token and redirect to auth
                 if (response.status === 401) {
                     localStorage.removeItem('github_token');
-                    window.location.href = `https://github.com/login/oauth/authorize?client_id=${githubAuth.client_id}&scope=${githubAuth.scope}`;
+                    window.location.href = `https://github.com/login/oauth/authorize?client_id=${githubAuth.client_id}&scope=${githubAuth.scope}&state=${state}`;
                 }
             }
         } catch (error) {
