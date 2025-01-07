@@ -82,14 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         selectedDate.setHours(hours, minutes, 0, 0);
 
-        // Check if selected time is in the past
-        const now = new Date();
-        if (selectedDate.getTime() <= now.getTime()) {
-            showMessage('Cannot schedule tweets in the past', 'error');
-            form.querySelectorAll('input, textarea, button').forEach(el => el.disabled = false);
-            return;
-        }
-
         const tweet = {
             content: tweetContent.value.trim(),
             scheduled_time: selectedDate.toISOString(),
@@ -136,16 +128,4 @@ document.addEventListener('DOMContentLoaded', () => {
             message.className = '';
         }, 5000);
     }
-
-    // Validate date changes
-    scheduleDate.addEventListener('change', (e) => {
-        const selectedDate = new Date(e.target.value);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-            showMessage('Cannot schedule tweets in the past', 'error');
-            scheduleDate.value = new Date().toISOString().split('T')[0];
-        }
-    });
 });
