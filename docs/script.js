@@ -91,20 +91,26 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('../../api/submit-tweet', {
+            const response = await fetch('https://api.github.com/repos/ImmutableType/twitter-poster/dispatches', {
                 method: 'POST',
                 headers: {
+                    'Accept': 'application/vnd.github.everest-preview+json',
+                    'Authorization': `Bearer ${TWEET_MANAGER_TOKEN}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(tweet)
+                body: JSON.stringify({
+                    event_type: 'tweet-submission',
+                    client_payload: tweet
+                })
             });
 
-            if (response.ok) {
+            if (response.status === 204) {
                 showMessage('Tweet scheduled successfully!', 'success');
                 form.reset();
                 setDefaultDateTime();
             } else {
                 showMessage('Error scheduling tweet.', 'error');
+                console.error('Response:', response);
             }
         } catch (error) {
             showMessage('Error connecting to server.', 'error');
