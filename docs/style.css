@@ -1,55 +1,49 @@
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
-}
-
-.container {
+ }
+ 
+ .container {
     max-width: 600px;
     margin: 0 auto;
-}
-
-.form-group {
+ }
+ 
+ .form-group {
     margin-bottom: 20px;
-}
-
-label {
+ }
+ 
+ label {
     display: block;
     margin-bottom: 5px;
-}
-
-textarea {
+ }
+ 
+ textarea {
     width: 100%;
     height: 100px;
     padding: 8px;
-}
-
-input[type="date"],
-input[type="time"] {
+ }
+ 
+ input[type="date"],
+ input[type="time"] {
     padding: 8px;
     width: 200px;
-}
-
-button {
+    font-size: 24px;
+    height: 50px;
+ }
+ 
+ button {
     background-color: #1da1f2;
     color: white;
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-}
-
-#message {
+ }
+ 
+ #message {
     margin-top: 20px;
     padding: 10px;
-}
-
-.success { background-color: #d4edda; }
-.error { background-color: #f8d7da; }
-
-input[type="date"],
-input[type="time"] {
-    padding: 8px;
-    width: 200px;
-    font-size: 24px;
-    height: 50px;
-}
+ }
+ 
+ .success { background-color: #d4edda; }
+ .error { background-color: #f8d7da; }
