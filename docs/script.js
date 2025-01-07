@@ -63,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Disable form during submission
+        form.querySelectorAll('input, textarea, button').forEach(el => el.disabled = true);
+        showMessage('Processing submission...', 'info');
+
         // Convert form time to Date object
         const selectedDate = new Date(scheduleDate.value);
         let hours = parseInt(scheduleHour.value);
@@ -81,21 +85,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if selected time is in the past
         if (selectedDate < new Date()) {
             showMessage('Cannot schedule tweets in the past', 'error');
+            form.querySelectorAll('input, textarea, button').forEach(el => el.disabled = false);
             return;
         }
 
         const tweet = {
-            content: tweetContent.value,
+            content: tweetContent.value.trim(),
             scheduled_time: selectedDate.toISOString(),
             uuid: crypto.randomUUID()
         };
 
         try {
+            console.log('Submitting tweet:', tweet);
             const response = await fetch('https://api.github.com/repos/ImmutableType/twitter-poster/dispatches', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     event_type: 'tweet-submission',
@@ -104,15 +110,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
+                console.log('Tweet scheduled successfully');
                 showMessage('Tweet scheduled successfully!', 'success');
                 form.reset();
                 setDefaultDateTime();
             } else {
-                showMessage('Error scheduling tweet.', 'error');
+                const errorText = await response.text();
+                console.error('Server response:', response.status, errorText);
+                showMessage(`Error scheduling tweet: ${response.status}`, 'error');
             }
         } catch (error) {
-            showMessage('Error connecting to server.', 'error');
-            console.error('Error:', error);
+            console.error('Submission error:', error);
+            showMessage('Error connecting to server', 'error');
+        } finally {
+            form.querySelectorAll('input, textarea, button').forEach(el => el.disabled = false);
         }
     });
 

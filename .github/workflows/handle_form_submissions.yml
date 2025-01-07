@@ -19,7 +19,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.13.1'
+        python-version: '3.12'
 
     - name: Configure Git
       run: |
@@ -31,24 +31,51 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Ensure data directories exist
+      run: |
+        mkdir -p data/tweets
+        touch data/tweets/manual_tweets.csv
+        touch data/tweets/master_tweets.csv
+
     - name: Process Tweet Submission
       env:
         TWEET_MANAGER_TOKEN: ${{ secrets.TWEET_MANAGER_TOKEN }}
       run: |
         if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+          echo "Processing repository dispatch event..."
           python scripts/process_submission.py \
             "${{ github.event.client_payload.content }}" \
             "${{ github.event.client_payload.scheduled_time }}" \
             "${{ github.event.client_payload.uuid }}"
         else
+          echo "Processing workflow dispatch event..."
           python scripts/process_submission.py \
             "${{ github.event.inputs.content }}" \
             "${{ github.event.inputs.scheduled_time }}" \
             "${{ github.event.inputs.uuid }}"
         fi
 
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if [[ -n "$(git status --porcelain data/tweets/)" ]]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Commit changes
+      if: steps.check_changes.outputs.changes == 'true'
       run: |
         git add data/tweets/manual_tweets.csv data/tweets/master_tweets.csv
-        git commit -m "Add scheduled tweet from form submission" || echo "No changes to commit"
+        git commit -m "Add scheduled tweet from form submission [skip ci]"
         git push
+
+    - name: Report Status
+      if: always()
+      run: |
+        if [[ "${{ steps.check_changes.outputs.changes }}" == "true" ]]; then
+          echo "Tweet successfully scheduled and files updated"
+        else
+          echo "No changes were made to tweet files"
+        fi
