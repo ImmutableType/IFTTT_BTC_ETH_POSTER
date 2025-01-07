@@ -1,0 +1,29 @@
+name: Handle Tweet Submission
+
+on:
+  repository_dispatch:
+    types: [tweet-submission]
+
+jobs:
+  process-tweet:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Process Tweet
+      env:
+        GH_TOKEN: ${{ secrets.TWEET_MANAGER_TOKEN }}
+      run: |
+        echo "Processing tweet submission"
+        echo "Content: ${{ github.event.client_payload.content }}"
+        echo "Scheduled for: ${{ github.event.client_payload.scheduled_time }}"
+        
+        # Add to tweets.csv
+        echo "${{ github.event.client_payload.uuid }},${{ github.event.client_payload.scheduled_time }},${{ github.event.client_payload.content }}" >> tweets.csv
+        
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
+        git add tweets.csv
+        git commit -m "Added new tweet"
+        git push
