@@ -55,7 +55,7 @@ input[type="date"] {
     margin: 10px 0;
 }
 
-.time-select {
+select, .time-select {
     padding: 15px;
     font-size: 1.6em;
     height: 60px;
@@ -63,6 +63,7 @@ input[type="date"] {
     border-radius: 8px;
     background-color: #f8f9fa;
     cursor: pointer;
+    min-width: 70px;
 }
 
 .time-separator {
@@ -110,27 +111,4 @@ button:hover {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
-}
-
-.time-input-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-select {
-    padding: 8px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    min-width: 70px;
-}
-
-#scheduleHour, #scheduleMinute {
-    width: 80px;
-}
-
-#scheduleAmPm {
-    width: 70px;
 }
