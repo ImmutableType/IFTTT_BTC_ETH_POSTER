@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('github_token')}`
+                    'Authorization': 'Bearer ghp_DDHu4lWqq9YUYRcDVvLIXN3xBPcTrg1aGI8j'
                 },
                 body: JSON.stringify({
                     event_type: 'oauth-callback',
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('github_token')}`
+                    'Authorization': 'Bearer ghp_DDHu4lWqq9YUYRcDVvLIXN3xBPcTrg1aGI8j'
                 },
                 body: JSON.stringify({
                     event_type: 'tweet-submission',
