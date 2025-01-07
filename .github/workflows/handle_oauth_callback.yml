@@ -4,40 +4,46 @@ on:
   repository_dispatch:
     types: [oauth-callback]
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   exchange-code:
     runs-on: ubuntu-latest
     
     steps:
     - name: Exchange Code for Token
+      id: exchange
       env:
         CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
         CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}
       run: |
-        response=$(curl -X POST \
+        token_response=$(curl -s -X POST \
           -H "Accept: application/json" \
           -H "Content-Type: application/json" \
           https://github.com/login/oauth/access_token \
           -d "{\"client_id\":\"$CLIENT_ID\",\"client_secret\":\"$CLIENT_SECRET\",\"code\":\"${{ github.event.client_payload.code }}\"}")
         
-        echo "::add-mask::$(echo $response | jq -r '.access_token')"
-        echo "TOKEN=$(echo $response | jq -r '.access_token')" >> $GITHUB_ENV
+        echo "response=$token_response" >> $GITHUB_OUTPUT
 
-    - name: Return Token
-      if: env.TOKEN
+    - name: Process Response
+      if: steps.exchange.outputs.response
       uses: actions/github-script@v6
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const callback_url = context.payload.client_payload.callback_url;
-          if (callback_url) {
+          const response = JSON.parse(process.env.RESPONSE);
+          if (response.access_token) {
             await github.rest.repos.createDispatchEvent({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              event_type: 'oauth-response',
+              event_type: 'oauth-token-ready',
               client_payload: {
-                token: process.env.TOKEN,
+                token: response.access_token,
                 state: context.payload.client_payload.state
               }
             });
           }
+      env:
+        RESPONSE: ${{ steps.exchange.outputs.response }}
