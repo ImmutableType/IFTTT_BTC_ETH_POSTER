@@ -83,7 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedDate.setHours(hours, minutes, 0, 0);
 
         // Check if selected time is in the past
-        if (selectedDate < new Date()) {
+        const now = new Date();
+        if (selectedDate.getTime() <= now.getTime()) {
             showMessage('Cannot schedule tweets in the past', 'error');
             form.querySelectorAll('input, textarea, button').forEach(el => el.disabled = false);
             return;
