@@ -1,38 +1,53 @@
-- name: Extract and Save Tweet
-  run: |
-    # Ensure data directory exists
-    mkdir -p data
+name: Process Tweet Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-to-csv:
+    runs-on: ubuntu-latest
     
-    # Create header if file doesn't exist
-    if [ ! -f data/tweets.csv ]; then
-      echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
-    fi
-    
-    # Extract info from issue body, ensuring clean format
-    BODY="${{ github.event.issue.body }}"
-    TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | tr -d '\n\r"' | xargs)
-    DATE=$(echo "$BODY" | grep "Date:" | cut -d':' -f2- | xargs)
-    TIME=$(echo "$BODY" | grep "Time:" | cut -d':' -f2- | xargs)
-    
-    # Generate ID and format timestamp
-    ID="M$(openssl rand -hex 3)"
-    TIMESTAMP="$DATE $TIME:00"
-    
-    # Escape special characters in tweet
-    ESCAPED_TWEET=$(echo "$TWEET" | sed 's/"/""/g' | sed 's/,/","/g')
-    
-    # Create simple CSV line
-    LINE="${ID},${TIMESTAMP},\"${ESCAPED_TWEET}\",False,manual,\"${TIMESTAMP}\",1.0,manual,"
-    
-    # Log line for debugging
-    echo "Appending line: $LINE"
-    
-    # Append to CSV
-    echo "$LINE" >> data/tweets.csv
-    
-    # Commit and push
-    git config user.name "GitHub Action"
-    git config user.email "action@github.com"
-    git add data/tweets.csv
-    git commit -m "Added new tweet from issue #${{ github.event.issue.number }}"
-    git push
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.TWEET_MANAGER_TOKEN }}
+        
+    - name: Extract and Save Tweet
+      run: |
+        # Ensure data directory exists
+        mkdir -p data
+        
+        # Create header if file doesn't exist
+        if [ ! -f data/tweets.csv ]; then
+          echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
+        fi
+        
+        # Extract info from issue body, ensuring clean format
+        BODY="${{ github.event.issue.body }}"
+        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | tr -d '\n\r"' | xargs)
+        DATE=$(echo "$BODY" | grep "Date:" | cut -d':' -f2- | xargs)
+        TIME=$(echo "$BODY" | grep "Time:" | cut -d':' -f2- | xargs)
+        
+        # Generate ID and format timestamp
+        ID="M$(openssl rand -hex 3)"
+        TIMESTAMP="$DATE $TIME:00"
+        
+        # Create simple CSV line
+        LINE="${ID},${TIMESTAMP},${TWEET},False,manual,${TIMESTAMP},1.0,manual,"
+        
+        # Append to CSV
+        echo "$LINE" >> data/tweets.csv
+        
+        # Commit and push
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
+        git add data/tweets.csv
+        git commit -m "Added new tweet from issue #${{ github.event.issue.number }}"
+        git push
+
+    - name: Close Issue
+      uses: peter-evans/close-issue@v3
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        comment: "Tweet added to schedule"
