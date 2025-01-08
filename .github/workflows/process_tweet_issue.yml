@@ -24,11 +24,15 @@ jobs:
         DATE=$(echo "$BODY" | grep "Date:" | cut -d':' -f2- | xargs)
         TIME=$(echo "$BODY" | grep "Time:" | cut -d':' -f2- | xargs)
         
-        # Add to tweets.csv (create if doesn't exist)
+        # Generate ID
+        ID="M$(openssl rand -hex 3)"
+        TIMESTAMP="$DATE $TIME"
+        
+        # Add to tweets.csv in the working format
         if [ ! -f data/tweets.csv ]; then
-          echo "date,time,tweet" > data/tweets.csv
+          echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
         fi
-        echo "$DATE,$TIME,\"$TWEET\"" >> data/tweets.csv
+        echo "$ID,$TIMESTAMP,\"$TWEET\",False,manual,$TIMESTAMP,1,manual," >> data/tweets.csv
         
         # Commit and push
         git config user.name "GitHub Action"
