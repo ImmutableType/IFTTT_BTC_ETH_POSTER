@@ -26,13 +26,18 @@ jobs:
         
         # Generate ID
         ID="M$(openssl rand -hex 3)"
-        TIMESTAMP="$DATE $TIME"
+        TIMESTAMP="$DATE $TIME:00"
         
-        # Add to tweets.csv in the working format
+        # If tweets.csv doesn't exist, create with header
         if [ ! -f data/tweets.csv ]; then
           echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
         fi
-        echo "$ID,$TIMESTAMP,\"$TWEET\",False,manual,$TIMESTAMP,1,manual," >> data/tweets.csv
+
+        # Add new entry in correct format
+        echo "$ID,$TIMESTAMP,\"$TWEET\",False,manual,$TIMESTAMP,1.0,manual," >> data/tweets.csv
+        
+        # Remove malformed entries (lines that don't start with 'M')
+        sed -i '/^M/!d' data/tweets.csv
         
         # Commit and push
         git config user.name "GitHub Action"
