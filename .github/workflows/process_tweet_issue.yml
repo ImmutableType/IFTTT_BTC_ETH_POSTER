@@ -33,8 +33,11 @@ jobs:
           echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
         fi
 
-        # Add new entry in correct format, ensuring 1.0 for priority
-        echo "$ID,$TIMESTAMP,\"$TWEET\",False,manual,$TIMESTAMP,1.0,manual," >> data/tweets.csv
+        # Remove quotes from tweet content and escape any commas
+        TWEET=$(echo "$TWEET" | tr -d '"' | sed 's/,/\\,/g')
+        
+        # Add new entry in correct format, ensuring consistent formatting
+        echo "$ID,$TIMESTAMP,$TWEET,False,manual,$TIMESTAMP,1.0,manual," >> data/tweets.csv
         
         # Commit and push
         git config user.name "GitHub Action"
