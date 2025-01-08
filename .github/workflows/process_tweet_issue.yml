@@ -15,29 +15,24 @@ jobs:
         
     - name: Extract and Save Tweet
       run: |
-        # Create data directory if it doesn't exist
-        mkdir -p data
-        
         # Extract info from issue body
         BODY="${{ github.event.issue.body }}"
-        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | xargs)
+        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | tr -d '\n' | xargs)
         DATE=$(echo "$BODY" | grep "Date:" | cut -d':' -f2- | xargs)
         TIME=$(echo "$BODY" | grep "Time:" | cut -d':' -f2- | xargs)
         
-        # Generate ID
+        # Generate ID and clean timestamp
         ID="M$(openssl rand -hex 3)"
         TIMESTAMP="$DATE $TIME:00"
         
-        # If tweets.csv doesn't exist, create with header
-        if [ ! -f data/tweets.csv ]; then
-          echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
-        fi
-
-        # Remove quotes from tweet content and escape any commas
-        TWEET=$(echo "$TWEET" | tr -d '"' | sed 's/,/\\,/g')
+        # Clean tweet text - remove any quotes, commas, newlines
+        TWEET=$(echo "$TWEET" | tr -d '"' | tr -d '\n' | sed 's/,/;/g')
         
-        # Add new entry in correct format, ensuring consistent formatting
-        echo "$ID,$TIMESTAMP,$TWEET,False,manual,$TIMESTAMP,1.0,manual," >> data/tweets.csv
+        # Create single-line CSV entry
+        LINE="$ID,$TIMESTAMP,$TWEET,False,manual,$TIMESTAMP,1.0,manual,"
+        
+        # Append to CSV ensuring newline
+        echo "$LINE" >> data/tweets.csv
         
         # Commit and push
         git config user.name "GitHub Action"
