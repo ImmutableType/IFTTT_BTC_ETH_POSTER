@@ -5,9 +5,9 @@ Mc359eab,2025-01-05 22:04:23,Testing our manual entry system!,True,manual,2025-0
 M11d241,2025-01-07 20:46:00,dogs rule,True,manual,2025-01-07 20:46:00,1.0,manual,
 Mbdf7e1,2025-01-08 01:01:00,dogs run in 3s,True,manual,2025-01-08 01:01:00,1.0,manual,
 M9436d5,2025-01-08 01:01:00,dogs run in 4s,True,manual,2025-01-08 01:01:00,1.0,manual,
-Me26d67,2025-01-07
- 23:56:00,monkey shot into space,False,manual,2025-01-07
- 23:56:00,1.0,manual,
-Mb7ee52,2025-01-08
- 01:01:00,3 monkeys riding a rocket,False,manual,2025-01-08
- 01:01:00,1.0,manual,
+Me26d67,2025-01-07,,,,,,,
+ 23:56:00,monkey shot into space,False,manual,2025-01-07,,,,
+ 23:56:00,1.0,manual,,,,,,
+Mb7ee52,2025-01-08,,,,,,,
+ 01:01:00,3 monkeys riding a rocket,False,manual,2025-01-08,,,,
+ 01:01:00,1.0,manual,,,,,,
