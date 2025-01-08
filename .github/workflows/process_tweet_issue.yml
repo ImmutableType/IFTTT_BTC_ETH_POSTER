@@ -33,11 +33,8 @@ jobs:
           echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
         fi
 
-        # Add new entry in correct format
+        # Add new entry in correct format, ensuring 1.0 for priority
         echo "$ID,$TIMESTAMP,\"$TWEET\",False,manual,$TIMESTAMP,1.0,manual," >> data/tweets.csv
-        
-        # Remove malformed entries (lines that don't start with 'M')
-        sed -i '/^M/!d' data/tweets.csv
         
         # Commit and push
         git config user.name "GitHub Action"
