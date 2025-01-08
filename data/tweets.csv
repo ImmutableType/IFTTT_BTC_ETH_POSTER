@@ -1,14 +1,1 @@
-id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data                                      ,                   ,             ,     ,      ,                   ,   ,      ,
-M001,2024-01-04 15:00:00,Our first planned tweet,True,manual,2024-01-04 15:00:00,1.0,manual,                 ,                   ,             ,     ,      ,                   ,   ,      ,
-Mcdeae361,2025-01-04 17:20:29,Quick test of our manual system! 🚀,True,manual,2025-01-04 17:20:29,1.0,manual,,                   ,             ,     ,      ,                   ,   ,      ,
-Mc359eab,2025-01-05 22:04:23,Testing our manual entry system!,True,manual,2025-01-05 22:00:00,1.0,manual,    ,                   ,             ,     ,      ,                   ,   ,      ,
-M11d241,2025-01-07 20:46:00,dogs rule,True,manual,2025-01-07 20:46:00,1.0,manual,                            ,                   ,             ,     ,      ,                   ,   ,      ,
-Mbdf7e1,2025-01-08 01:01:00,dogs run in 3s,True,manual,2025-01-08 01:01:00,1.0,manual,                       ,                   ,             ,     ,      ,                   ,   ,      ,
-M9436d5,2025-01-08 01:01:00,dogs run in 4s,True,manual,2025-01-08 01:01:00,1.0,manual,                       ,                   ,             ,     ,      ,                   ,   ,      ,
-Me26d67,2025-01-07 23:56:00,monkey shot into space,True,manual,2025-01-07 23:56:00,1.0,manual,               ,                   ,             ,     ,      ,                   ,   ,      ,
-Mb7ee52,2025-01-08 01:01:00,3 monkeys riding a rocket,True,manual,2025-01-08 01:01:00,1.0,manual,            ,                   ,             ,     ,      ,                   ,   ,      ,
-Me91a4d,2025-01-08 01:01:00,5 monkeys shot into spaced,True,manual,2025-01-08 01:01:00,1.0,manual,           ,                   ,             ,     ,      ,                   ,   ,      ,
-Md19f62,2025-01-08 13:01:00,6 monkeys shot into space,True,manual,2025-01-08 13:01:00,1.0,manual,            ,                   ,             ,     ,      ,                   ,   ,      ,
-M7cc68d,2025-01-08 11:33:00,Dogs wag; dolphins swim,True,manual,2025-01-08 11:33:00,1.0,manual,              ,                   ,             ,     ,      ,                   ,   ,      ,
-M8d63a0                                                                                                      ,2025-01-08 11:46:00,Dogs can swim,False,manual,2025-01-08 11:46:00,1.0,manual,
-M3db1a9,2025-01-08 11:55:00,dogs swim on land,False,manual,2025-01-08 11:55:00,1.0,manual,
+id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data
