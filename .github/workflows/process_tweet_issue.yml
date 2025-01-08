@@ -1,0 +1,39 @@
+name: Process Tweet Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-to-csv:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.TWEET_MANAGER_TOKEN }}
+        
+    - name: Extract and Save Tweet
+      run: |
+        # Extract info from issue body
+        BODY="${{ github.event.issue.body }}"
+        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | xargs)
+        DATE=$(echo "$BODY" | grep "Date:" | cut -d':' -f2- | xargs)
+        TIME=$(echo "$BODY" | grep "Time:" | cut -d':' -f2- | xargs)
+        
+        # Add to tweets.csv (create if doesn't exist)
+        echo "date,time,tweet" > tweets.csv
+        echo "$DATE,$TIME,\"$TWEET\"" >> tweets.csv
+        
+        # Commit and push
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
+        git add tweets.csv
+        git commit -m "Added new tweet from issue #${{ github.event.issue.number }}"
+        git push
+
+    - name: Close Issue
+      uses: peter-evans/close-issue@v3
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        comment: "Tweet added to schedule"
