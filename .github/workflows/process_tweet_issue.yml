@@ -15,24 +15,30 @@ jobs:
         
     - name: Extract and Save Tweet
       run: |
-        # Extract info from issue body
+        # Create data directory if it doesn't exist
+        mkdir -p data
+        
+        # Extract info from issue body, ensuring clean format
         BODY="${{ github.event.issue.body }}"
-        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | tr -d '\n' | xargs)
+        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | tr -d '\n\r",' | xargs)
         DATE=$(echo "$BODY" | grep "Date:" | cut -d':' -f2- | xargs)
         TIME=$(echo "$BODY" | grep "Time:" | cut -d':' -f2- | xargs)
         
-        # Generate ID and clean timestamp
+        # Generate ID and format timestamp
         ID="M$(openssl rand -hex 3)"
         TIMESTAMP="$DATE $TIME:00"
         
-        # Clean tweet text - remove any quotes, commas, newlines
-        TWEET=$(echo "$TWEET" | tr -d '"' | tr -d '\n' | sed 's/,/;/g')
+        # Ensure CSV exists with header if needed
+        if [ ! -f data/tweets.csv ]; then
+          printf "id\ttimestamp\tmessage\tposted\ttype\tscheduled_for\tpriority\tsource\traw_data\n" > data/tweets.csv
+        fi
         
-        # Create single-line CSV entry
-        LINE="$ID,$TIMESTAMP,$TWEET,False,manual,$TIMESTAMP,1.0,manual,"
+        # Add new entry using tab delimiters
+        printf "$ID\t$TIMESTAMP\t$TWEET\tFalse\tmanual\t$TIMESTAMP\t1.0\tmanual\t\n" >> data/tweets.csv
         
-        # Append to CSV ensuring newline
-        echo "$LINE" >> data/tweets.csv
+        # Convert tabs to proper CSV
+        cat data/tweets.csv | column -t -s $'\t' -o ',' > data/tweets.csv.tmp
+        mv data/tweets.csv.tmp data/tweets.csv
         
         # Commit and push
         git config user.name "GitHub Action"
