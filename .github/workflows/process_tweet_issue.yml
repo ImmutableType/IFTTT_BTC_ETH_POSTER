@@ -23,9 +23,9 @@ jobs:
           echo "id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data" > data/tweets.csv
         fi
         
-        # Extract info from issue body, ensuring clean format
+        # Extract info from issue body
         BODY="${{ github.event.issue.body }}"
-        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | tr -d '\n\r"' | xargs)
+        TWEET=$(echo "$BODY" | grep "Tweet:" | cut -d':' -f2- | sed 's/^[[:space:]]*//')
         DATE=$(echo "$BODY" | grep "Date:" | cut -d':' -f2- | xargs)
         TIME=$(echo "$BODY" | grep "Time:" | cut -d':' -f2- | xargs)
         
@@ -33,8 +33,11 @@ jobs:
         ID="M$(openssl rand -hex 3)"
         TIMESTAMP="$DATE $TIME:00"
         
-        # Create simple CSV line
-        LINE="${ID},${TIMESTAMP},${TWEET},False,manual,${TIMESTAMP},1.0,manual,"
+        # Properly escape the tweet content for CSV
+        ESCAPED_TWEET=$(echo "$TWEET" | sed 's/"/""/'g)
+        
+        # Create properly formatted CSV line
+        LINE="${ID},${TIMESTAMP},\"${ESCAPED_TWEET}\",False,manual,${TIMESTAMP},1.0,manual,"
         
         # Append to CSV
         echo "$LINE" >> data/tweets.csv
