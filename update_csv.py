@@ -1,4 +1,5 @@
 import os
+import csv
 import pandas as pd
 import requests
 from dotenv import load_dotenv
@@ -21,10 +22,19 @@ def send_tweet(message):
         return False
 
 def process_tweets():
-    df = pd.read_csv('data/tweets.csv')
+    # Read the CSV with specific parameters to handle potential formatting issues
+    df = pd.read_csv('data/tweets.csv', 
+                     lineterminator='\n',  # Explicit line terminator
+                     quotechar='"',        # Explicit quote character
+                     escapechar='\\',      # Add escape character
+                     on_bad_lines='warn',  # Don't fail on bad lines
+                     encoding='utf-8')     # Explicit encoding
+    
+    # Clean up any potential whitespace in column names
+    df.columns = df.columns.str.strip()
     
     # Find unposted tweets
-    unposted = df[df['posted'] == False]
+    unposted = df[df['posted'].astype(str).str.lower() == 'false']
     
     for index, row in unposted.iterrows():
         if send_tweet(row['message']):
@@ -32,7 +42,7 @@ def process_tweets():
             print(f"Posted tweet: {row['message']}")
     
     # Save updated CSV
-    df.to_csv('data/tweets.csv', index=False)
+    df.to_csv('data/tweets.csv', index=False, quoting=csv.QUOTE_MINIMAL)
 
 if __name__ == "__main__":
     process_tweets()
