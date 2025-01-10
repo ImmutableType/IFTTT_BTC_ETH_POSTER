@@ -28,13 +28,11 @@ def get_crypto_prices():
         return None
 
 def create_crypto_message(prices):
-    # Convert UTC to Eastern Time
     et_tz = pytz.timezone('US/Eastern')
-    utc_time = datetime.now(pytz.UTC)
-    et_time = utc_time.astimezone(et_tz)
-    current_time = et_time.strftime("%Y-%m-%d %I:%M %p ET")
+    current_time = datetime.now(et_tz)
+    time_str = current_time.strftime("%Y-%m-%d %I:%M %p ET")
     
-    return f"Crypto Price Update 🚨\nBTC: ${prices['btc']:,} USD\nETH: ${prices['eth']:,} USD\n\n{current_time}"
+    return f"Crypto Price Update 🚨\nBTC: ${prices['btc']:,} USD\nETH: ${prices['eth']:,} USD\n\n{time_str}"
 
 def send_tweet(message):
     webhook_url = os.getenv('IFTTT_WEBHOOK_URL')
@@ -57,54 +55,72 @@ def send_tweet(message):
         return False
 
 def process_tweets():
-    # Read the CSV file
-    df = pd.read_csv('data/tweets.csv', 
-                     lineterminator='\n',
-                     quotechar='"',
-                     escapechar='\\',
-                     on_bad_lines='warn',
-                     encoding='utf-8')
+    print(f"\nStarting tweet processing at {datetime.now(pytz.timezone('US/Eastern'))}")
     
-    df.columns = df.columns.str.strip()
-    
-    # Get current time in ET
-    et_tz = pytz.timezone('US/Eastern')
-    current_time = datetime.now(et_tz)
-    
-    # Filter for unposted tweets that are due
-    unposted = df[df['posted'].astype(str).str.lower() == 'false']
-    
-    # Process each tweet
-    for index, row in unposted.iterrows():
-        scheduled_time = datetime.strptime(row['scheduled_for'], "%Y-%m-%d %H:%M:00")
-        scheduled_time = et_tz.localize(scheduled_time)
+    try:
+        # Read the CSV file
+        df = pd.read_csv('data/tweets.csv', 
+                        lineterminator='\n',
+                        quotechar='"',
+                        escapechar='\\',
+                        on_bad_lines='warn',
+                        encoding='utf-8')
         
-        # Only process if it's time to post
-        if current_time >= scheduled_time:
-            print(f"\nProcessing scheduled tweet for: {scheduled_time.strftime('%Y-%m-%d %I:%M %p ET')}")
+        df.columns = df.columns.str.strip()
+        
+        # Get current time in ET
+        et_tz = pytz.timezone('US/Eastern')
+        current_time = datetime.now(et_tz)
+        
+        # Start from tomorrow for past dates
+        if current_time.hour >= 19:  # After 7 PM
+            start_date = (current_time + timedelta(days=1)).date()
+        else:
+            start_date = current_time.date()
             
-            # Handle dynamic crypto price posts
-            if row['type'] == 'crypto_price':
-                prices = get_crypto_prices()
-                if prices is None:
-                    print("Skipping due to rate limit...")
-                    continue
-                message = create_crypto_message(prices)
+        # Find unposted tweets for today or future
+        unposted = df[
+            (df['posted'].astype(str).str.lower() == 'false') & 
+            (pd.to_datetime(df['scheduled_for']).dt.date >= start_date)
+        ].copy()
+        
+        if len(unposted) == 0:
+            print("No unposted tweets found")
+            return
+            
+        # Convert scheduled_for to datetime with timezone
+        unposted['scheduled_for'] = pd.to_datetime(unposted['scheduled_for'])
+        unposted = unposted.sort_values('scheduled_for')
+        
+        # Process only the first due tweet
+        for index, row in unposted.iterrows():
+            scheduled_time = row['scheduled_for'].replace(tzinfo=et_tz)
+            
+            if current_time >= scheduled_time:
+                print(f"\nProcessing tweet scheduled for: {scheduled_time.strftime('%Y-%m-%d %I:%M %p ET')}")
                 
-                if send_tweet(message):
-                    df.at[index, 'posted'] = True
-                    print(f"Successfully posted tweet for {scheduled_time.strftime('%Y-%m-%d %I:%M %p ET')}")
-                    time.sleep(5)  # Increased delay between successful posts
+                if row['type'] == 'crypto_price':
+                    prices = get_crypto_prices()
+                    if prices is None:
+                        print("Failed to get crypto prices, skipping...")
+                        break
+                    
+                    message = create_crypto_message(prices)
+                    if send_tweet(message):
+                        df.at[index, 'posted'] = True
+                        print(f"Successfully posted tweet for {scheduled_time.strftime('%Y-%m-%d %I:%M %p ET')}")
+                        # Save after successful post
+                        df.to_csv('data/tweets.csv', index=False, quoting=csv.QUOTE_MINIMAL)
+                        break  # Exit after one successful post
+                    else:
+                        print("Failed to post tweet, will retry next run")
+                        break
             else:
-                message = row['message']
-                if send_tweet(message):
-                    df.at[index, 'posted'] = True
-                    print(f"Successfully posted non-crypto tweet")
-                    time.sleep(2)
-    
-    # Save updates back to CSV
-    df.to_csv('data/tweets.csv', index=False, quoting=csv.QUOTE_MINIMAL)
-    print("\nFinished processing tweets")
+                print(f"No tweets due for posting. Next tweet scheduled for {scheduled_time.strftime('%Y-%m-%d %I:%M %p ET')}")
+                break
+        
+    except Exception as e:
+        print(f"Error in process_tweets: {e}")
 
 if __name__ == "__main__":
     process_tweets()
