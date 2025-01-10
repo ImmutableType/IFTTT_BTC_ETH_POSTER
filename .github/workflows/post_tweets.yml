@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -25,10 +27,17 @@ jobs:
           IFTTT_WEBHOOK_URL: ${{ secrets.IFTTT_WEBHOOK_URL }}
         run: python update_csv.py
         
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git status --porcelain data/tweets.csv | wc -l > changes.txt
+          echo "changes=$(cat changes.txt)" >> $GITHUB_OUTPUT
+        
       - name: Commit changes
+        if: steps.check_changes.outputs.changes != '0'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add data/tweets.csv
-          git commit -m "Update tweet status" || exit 0
+          git diff --staged --quiet || git commit -m "Update tweet status [skip ci]"
           git push
