@@ -1,6 +1,6 @@
 id,timestamp,message,posted,type,scheduled_for,priority,source,raw_data
 CRYPTO_2025-08-11_1200,2025-08-11 11:13:00,,True,crypto_price,2025-08-11 11:20:00,1.0,auto,
-CRYPTO_2025-08-11_1600,2025-08-11 16:00:00,,False,crypto_price,2025-08-11 16:00:00,1.0,auto,
+CRYPTO_2025-08-11_1600,2025-08-11 16:00:00,,True,crypto_price,2025-08-11 16:00:00,1.0,auto,
 CRYPTO_2025-08-11_1900,2025-08-11 19:00:00,,False,crypto_price,2025-08-11 19:00:00,1.0,auto,
 CRYPTO_2025-08-12_0400,2025-08-12 04:00:00,,False,crypto_price,2025-08-12 04:00:00,1.0,auto,
 CRYPTO_2025-08-12_0800,2025-08-12 08:00:00,,False,crypto_price,2025-08-12 08:00:00,1.0,auto,
